@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Prolog XO</title>
+
+  <!-- Bootstrap 4.5 -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@next"></script>
+
+  <!-- Custom File -->
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <div id="body">
+
+    <div id="header">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Prolog XO</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#">The Game<span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div id="content" class="container">
+
+      <div id="game_info" class="bodyBlock">
+        <h3>Prolog XO</h3>
+        <p>
+          This is a classic tic-tac-toe game where the logic is implemented in Prolog (swiprolog specifically)<br>
+          Choose your game options and play!<br>
+          For more info - press the "About" button in the header.<br>
+        </p>
+      </div>
+
+      <div id="gameOptions" class="bodyBlock">
+        <form class="form-inline">
+          <select class="custom-select mx-sm-3 mb-2">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard" selected>Hard</option>
+          </select>
+          <div class="form-group mx-sm-3 mb-2">
+            <label for="boardSizeInput" class="sr-only">Board Size</label>
+            <input type="text" class="form-control" id="boardSizeInput" placeholder="3" v-model="boardSize" />
+          </div>
+          <button class="btn btn-warning mb-2">Reset</button>
+        </form>
+      </div>
+
+      <div id="theGame" class="bodyBlock">
+        <div id="gameBoard" class="container-sm">
+          <div v-for="row in board" class="row">
+            <div v-for="cell in row" class="col">
+              {{ cell }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
+
+
+<script>
+  function createBoard(size) {
+    var newBoard = []
+    for (var i = 0; i < size; i++) {
+      newBoard[i] = [];
+      for (var j = 0; j < size; j++) {
+        newBoard[i][j] = "5";
+      }
+    }
+    return newBoard;
+  }
+
+  const Board = {
+    data() {
+      return {
+        board: null,
+        boardSize: 3
+      }
+    },
+
+    mounted() {
+      this.board = createBoard(this.boardSize);
+    },
+
+    methods: { }
+  }
+
+  const app = Vue.createApp(Board).mount("#content")
+</script>
