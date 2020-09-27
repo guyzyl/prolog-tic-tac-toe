@@ -33,7 +33,7 @@
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
+              <button class="nav-link btn btn-link" data-toggle="modal" data-target="#aboutModal">About</button>
             </li>
           </ul>
         </div>
@@ -60,7 +60,7 @@
           </select>
           <div class="form-group mx-sm-3 mb-2">
             <label for="boardSizeInput" class="sr-only">Board Size</label>
-            <input type="text" class="form-control" id="boardSizeInput" v-model="boardSize" @input="resizeBoard" />
+            <input type="text" class="form-control" id="boardSizeInput" placeholder="Board size" v-model="boardSize" @input="resizeBoard" />
           </div>
           <button class="btn btn-warning mb-2" @click="resizeBoard">Reset</button>
         </form>
@@ -76,6 +76,25 @@
         </table>
       </div>
 
+    </div>
+
+    <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">About</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" v-html="aboutContent">
+            <!-- <span v-html="aboutContent"></span> -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </body>
@@ -96,7 +115,7 @@
     return newBoard;
   }
 
-  const Board = {
+  const App = {
     data() {
       return {
         board: null,
@@ -104,11 +123,13 @@
         playerSymbol: "X",
         selectedDifficultyLevel: "Hard",
         difficultyLevels: ["Easy", "Medium", "Hard"],
+        aboutContent: null,
       }
     },
 
     mounted() {
       this.resizeBoard();
+      this.getAbout();
     },
 
     methods: {
@@ -123,13 +144,19 @@
           this.board[rowIndex][cellIndex] = this.playerSymbol;
           axios.post("/api/make_move", {board: this.board, difficultyLevel: this.selectedDifficultyLevel}).then(response => {
             this.board = response.data.board;
-          })
+          });
         }
+      },
+
+      getAbout() {
+        axios.get("/about").then(response => {
+          this.aboutContent = response.data;
+        });
       }
     }
   }
 
-  const app = Vue.createApp(Board).mount("#content")
+  const app = Vue.createApp(App).mount("#body")
 </script>
 
 
