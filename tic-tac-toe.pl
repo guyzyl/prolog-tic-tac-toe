@@ -1,3 +1,5 @@
+% TODO Add name here
+%
 % Board is a one dimensional array of the following values:
 %   x - The symobol for player X
 %   o - The symbol for player O
@@ -9,42 +11,47 @@
 %   - All over the documentation, "+" is an input variable and "-" an output
 %
 
+% TODO add depth variable
+% TODO check that current board isn't draw or win
 % miniMax(+Player, +Board, -BestMove)
 % Find the best move Player can make on Board.
 % :return BestMove: The new board with the best possible move chosen.
 miniMax(Player, Board, BestMove) :-
-    miniMaxStep(Player, max, Board, BestMove, _).
+    miniMaxStep(Player, Player, max, Board, BestMove, _).
 
 
-% miniMaxStep(+Player, +MinMax, +Board, -BestMove, -BestScore)
+
+% miniMaxStep(+OriginalPlayer, +Player, +MinMax, +Board, -BestMove, -BestScore)
 % Finds the best move Player can make on Board (by trying to maximize BestScore).
-miniMaxStep(Player, MinMax, Board, BestMove, BestScore) :-
+% :param OriginalPlayer: This is needed later on for properly scoring the boards.
+miniMaxStep(OriginalPlayer, Player, MinMax, Board, BestMove, BestScore) :-
     allMoves(Player, Board, AllMoves),
-    bestMove(Player, MinMax, AllMoves, BestMove, BestScore).
+    bestMove(OriginalPlayer, Player, MinMax, AllMoves, BestMove, BestScore).
 
 
 
-% bestMove(+Player, +MinMax, +AllMoves, -BestMove, -BestScore)
+% bestMove(+OriginalPlayer, +Player, +MinMax, +AllMoves, -BestMove, -BestScore)
 % Choose the next move.
 
 % Pick best scoring move out of moves
-bestMove(Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
-    scoreBoard(Player, Move, Score),
-    bestMove(Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
+bestMove(OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
+    scoreBoard(OriginalPlayer, Move, Score),
+    bestMove(OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
     compareMoves(MinMax, Move, Score, CurrentBestMove, CurrentBestScore, BestMove, BestScore).
 
-bestMove(Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
-    bestMove(Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
+bestMove(OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
+    bestMove(OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
     otherPlayer(Player, OtherPlayer),
     switchMinMax(MinMax, OtherMinMax),
-    miniMaxStep(OtherPlayer, OtherMinMax, Move, _, LeafBestScore),
+    miniMaxStep(OriginalPlayer, OtherPlayer, OtherMinMax, Move, _, LeafBestScore),
     compareMoves(MinMax, Move, LeafBestScore, CurrentBestMove, CurrentBestScore, BestMove, BestScore).
 
 % If no boards left and MinMax is max.
-bestMove(_, max, [], [], -2).
+bestMove(_, _, max, [], [], -2).
 
 % If no boards left and MinMax is min.
-bestMove(_, min, [], [], 2).
+bestMove(_, _, min, [], [], 2).
+
 
 
 % compareMoves(+MinMax, +MoveA, +ScoreA, +MoveB, +ScoreB, -BetterMove, -BetterScore)
@@ -52,17 +59,18 @@ bestMove(_, min, [], [], 2).
 % Also takes current MinMax value into fact.
 % If MinMax is max
 compareMoves(max, MoveA, ScoreA, _, ScoreB, MoveA, ScoreA) :-
-    ScoreA >= ScoreB.
+    ScoreA >= ScoreB, !.
 
 compareMoves(max, _, ScoreA, MoveB, ScoreB, MoveB, ScoreB) :-
-    ScoreA < ScoreB.
+    ScoreA < ScoreB, !.
 
 % If MinMax is min
 compareMoves(min, MoveA, ScoreA, _, ScoreB, MoveA, ScoreA) :-
-    ScoreA =< ScoreB.
+    ScoreA =< ScoreB, !.
 
 compareMoves(min, _, ScoreA, MoveB, ScoreB, MoveB, ScoreB) :-
-    ScoreA > ScoreB.
+    ScoreA > ScoreB, !.
+
 
 
 % scoreBoard(+Player, +Board, -Score)
@@ -74,23 +82,24 @@ compareMoves(min, _, ScoreA, MoveB, ScoreB, MoveB, ScoreB) :-
 
 % If empty board
 scoreBoard(_, [], Score) :-
-    Score is 0.
+    Score is 0, !.
 
 % If Player is winning +1
 scoreBoard(P, Board, Score) :-
     isWinning(P, Board),
-    Score is 1.
+    Score is 1, !.
 
 % If other player is winning -1
 scoreBoard(P, Board, Score) :-
     otherPlayer(P, P2),
     isWinning(P2, Board),
-    Score is -1.
+    Score is -1, !.
 
 % If draw 0
 scoreBoard(_, Board, Score) :-
     isDraw(Board),
-    Score is 0.
+    Score is 0, !.
+
 
 
 % allMoves(+Player, +Board, -AllMoves)
@@ -98,6 +107,7 @@ scoreBoard(_, Board, Score) :-
 % :return AllMoves: All possible boards for legal move.
 allMoves(P, Board, AllMoves) :-
     findall(NextBoard, makeMove(P, Board, NextBoard), AllMoves).
+
 
 
 % makeMove(+Player, +Board, -NextBoard)
@@ -111,6 +121,7 @@ makeMove(P, [B|Bs], [B|B2s]) :-
 makeMove(P, [0|Bs], [P|Bs]).
 
 
+
 % otherPlayer(+Player, -OtherPlayer)
 % Return the alternate player of given player Player
 otherPlayer(x, o).
@@ -122,10 +133,6 @@ otherPlayer(o, x).
 switchMinMax(min, max).
 switchMinMax(max, min).
 
-
-% playerToMinMax(+Player, -MinMax)
-% Convert between original given player to MinMax.
-% playerToMinMax()
 
 % isDraw(+Board)
 % Returns True if all spots on board are taken (!= 0)
