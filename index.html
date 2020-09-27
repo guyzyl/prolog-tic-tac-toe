@@ -53,10 +53,10 @@
 
       <div id="gameOptions" class="bodyBlock">
         <form class="form-inline">
-          <select class="custom-select mx-sm-3 mb-2">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard" selected>Hard</option>
+          <select class="custom-select mx-sm-3 mb-2" v-model="selectedDifficultyLevel">
+            <option v-for="option in difficultyLevels" v-bind:value="option">
+              {{ option }}
+            </option>
           </select>
           <div class="form-group mx-sm-3 mb-2">
             <label for="boardSizeInput" class="sr-only">Board Size</label>
@@ -101,8 +101,9 @@
       return {
         board: null,
         boardSize: 3,
-        difficultyLevel: "",
-        playerSymbol: "X"
+        playerSymbol: "X",
+        selectedDifficultyLevel: "Hard",
+        difficultyLevels: ["Easy", "Medium", "Hard"],
       }
     },
 
@@ -120,7 +121,7 @@
           alert("Invalid move!");
         } else {
           this.board[rowIndex][cellIndex] = this.playerSymbol;
-          axios.post("/api/make_move", {board: this.board, difficultyLevel: this.difficultyLevel}).then(response => {
+          axios.post("/api/make_move", {board: this.board, difficultyLevel: this.selectedDifficultyLevel}).then(response => {
             this.board = response.data.board;
           })
         }
