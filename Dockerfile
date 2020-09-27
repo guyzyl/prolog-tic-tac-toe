@@ -19,4 +19,4 @@ ADD . /opt/.
 EXPOSE 5000
 
 # Execute server on docker run
-ENTRYPOINT [ "python3", "server/server.py" ]
+ENTRYPOINT [ "python3", "server.py" ]
