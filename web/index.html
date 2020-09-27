@@ -13,10 +13,6 @@
 
   <!-- Vue.js -->
   <script src="https://unpkg.com/vue@next"></script>
-
-  <!-- Custom File -->
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js"></script>
 </head>
 
 <body>
@@ -63,20 +59,20 @@
           </select>
           <div class="form-group mx-sm-3 mb-2">
             <label for="boardSizeInput" class="sr-only">Board Size</label>
-            <input type="text" class="form-control" id="boardSizeInput" placeholder="3" v-model="boardSize" />
+            <input type="text" class="form-control" id="boardSizeInput" v-model="boardSize" @input="resizeBoard" />
           </div>
-          <button class="btn btn-warning mb-2">Reset</button>
+          <button class="btn btn-warning mb-2" @click="resizeBoard">Reset</button>
         </form>
       </div>
 
       <div id="theGame" class="bodyBlock">
-        <div id="gameBoard" class="container-sm">
-          <div v-for="row in board" class="row">
-            <div v-for="cell in row" class="col">
+        <table id="gameBoard">
+          <tr v-for="row in board" class="">
+            <td v-for="cell in row" class="boardCell">
               {{ cell }}
-            </div>
-          </div>
-        </div>
+            </td>
+          </tr>
+        </table>
       </div>
 
     </div>
@@ -86,13 +82,14 @@
 </html>
 
 
+<!-- Frontend Logic -->
 <script>
   function createBoard(size) {
     var newBoard = []
     for (var i = 0; i < size; i++) {
       newBoard[i] = [];
       for (var j = 0; j < size; j++) {
-        newBoard[i][j] = "5";
+        newBoard[i][j] = "";
       }
     }
     return newBoard;
@@ -107,11 +104,33 @@
     },
 
     mounted() {
-      this.board = createBoard(this.boardSize);
+      this.resizeBoard();
     },
 
-    methods: { }
+    methods: {
+      resizeBoard() {
+        this.board = createBoard(this.boardSize);
+      }
+    }
   }
 
   const app = Vue.createApp(Board).mount("#content")
 </script>
+
+
+<!-- Frontend Styling -->
+<style>
+  .bodyBlock {
+    margin-top: 25px;
+    float: none;
+  }
+
+  .boardCell {
+    height: 100px;
+    width: 100px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 65px;
+    border: 1px solid black;
+  }
+</style>
