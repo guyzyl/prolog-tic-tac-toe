@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    # return "hello"
-    return app.send_static_file("index.html")
+    with open("index.html", "r") as f_obj:
+        return f_obj.read()
 
 
 @app.route("/api/make_move")
