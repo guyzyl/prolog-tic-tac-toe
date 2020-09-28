@@ -42,6 +42,7 @@
 
     <div id="content" class="container">
 
+      <!-- Game info text -->
       <div id="game_info" class="bodyBlock">
         <h3>Prolog XO</h3>
         <p>
@@ -51,6 +52,7 @@
         </p>
       </div>
 
+      <!-- Games options -->
       <div id="gameOptions" class="bodyBlock">
         <form class="form-inline">
           <div class="form-group">
@@ -67,10 +69,11 @@
             <label for="boardSizeInput" class="sr-only">Board Size</label>
             <input type="text" class="form-control" id="boardSizeInput" placeholder="Board size" v-model="boardSize" @input="resizeBoard" />
           </div>
-          <button class="btn btn-warning mb-2" @click="resizeBoard">Reset</button>
+          <button type="button" class="btn btn-warning mb-2" @click="resizeBoard">Reset</button>
         </form>
       </div>
 
+      <!-- Tic-tac-toe board -->
       <div id="theGame" class="bodyBlock">
         <table id="gameBoard">
           <tr v-for="(row, rowIndex) in board" class="">
@@ -103,19 +106,18 @@
       </div>
     </div>
 
-    <!-- Win/lose modal -->
-    <div class="modal fade" id="winModal" tabindex="-1" role="dialog">
+    <!-- Info Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" v-if="isWinner">You win!</h5>
-            <h5 class="modal-title" v-if="!isWinner">You lose!</h5>
+            <h5 class="modal-title">{{ infoModalText }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="resizeBoard">Close</button>
           </div>
         </div>
       </div>
@@ -147,9 +149,9 @@
         boardSize: 3,
         playerSymbol: "X",
         difficultyLevel: 0,
-        maxDifficultyLevel: 0,
-        isWinner: null,
+        maxDifficultyLevel: 9,
         aboutContent: null,
+        infoModalText: null,
       }
     },
 
@@ -163,9 +165,6 @@
       resizeBoard() {
         this.board = createBoard(this.boardSize);
         this.isWinner = null;
-        if (this.boardSize > 0) {
-          this.maxDifficultyLevel = this.boardSize * this.boardSize;
-        }
       },
 
       postJsonData() {
@@ -184,15 +183,19 @@
           axios.post("/api/make_move", this.postJsonData()).then(response => {
             this.board = response.data.board;
             this.getIsWinner();
+          }).catch(() => {
+            this.showInfoModal("It's too damm hard! please lower difficulty");
           });
         }
       },
 
       getIsWinner() {
         axios.post("/api/is_winner", this.postJsonData()).then(response => {
-          this.isWinner = response.data.result;
-          if (this.isWinner !== null) {
-            $("#winModal").modal("show");
+          isWinner = response.data.result;
+          if (isWinner === true) {
+            this.showInfoModal("You win!");
+          } else if (isWinner === false) {
+            this.showInfoModal("You lose!");
           }
         });
       },
@@ -206,6 +209,11 @@
       setSymbol(symbol) {
         this.playerSymbol = symbol;
         this.resizeBoard();
+      },
+
+      showInfoModal(text) {
+        this.infoModalText = text;
+        $("#infoModal").modal("show");
       },
     }
   }
