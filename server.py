@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, Optional
 from itertools import islice
 
 
 from pyswip_mt import PrologMT
 from flask import Flask, jsonify, request
 from markdown2 import markdown
+
+OTHER_PLAYER_SYMBOL = lambda x: "x" if x == "O" else "o"
 
 app = Flask(__name__)
 
@@ -32,6 +34,17 @@ def about():
     return markdown(content)
 
 
+@app.route("/api/is_winner", methods=["POST"])
+def is_winner():
+    """
+    API function to expose checking for a winner in XO board.
+    Call receives JSON with board + player's symbol and returns result.
+    """
+    data = request.get_json()
+    winner_result = is_winner(data.get("board"), data.get("symbol"))
+    return jsonify({"result": winner_result})
+
+
 @app.route("/api/make_move", methods=["POST"])
 def make_move_api():
     """
@@ -56,12 +69,35 @@ def make_move(board: List[List], difficulty_level: int, player_symbol: str) -> L
     # Make data simpler for Prolog
     prolog_board = board_to_prolog(board)
 
-    prolog_query = f"miniMax({difficulty_level}, {player_symbol.lower()}, {prolog_board}, BestMove)"
+    prolog_query = f"miniMax({difficulty_level}, {OTHER_PLAYER_SYMBOL(player_symbol)}, {prolog_board}, BestMove)"
     prolog_result = list(prolog.query(prolog_query, maxresult=1))[0].get("BestMove")
 
     # Return result
     result = prolog_to_board(prolog_result, len(board))
     return result
+
+
+def is_winner(board: List[List], player_symbol: str) -> Optional[bool]:
+    """
+    Function receives board + symbol as input and makes call to
+        external Prolog function to check if winning.
+    :return: True if player wins, False if loses, None if no one wins.
+    """
+    prolog_board = board_to_prolog(board)
+
+    # Check if player wins
+    prolog_query = f"isWinning({player_symbol.lower()}, {prolog_board})."
+    prolog_result = list(prolog.query(prolog_query))
+    if len(prolog_result) > 0:
+        return True
+
+    # Check if computer wins
+    prolog_query = f"isWinning({OTHER_PLAYER_SYMBOL(player_symbol)}, {prolog_board})."
+    prolog_result = list(prolog.query(prolog_query))
+    if len(prolog_result) > 0:
+        return False
+
+    return None
 
 
 def board_to_prolog(board: List[List]) -> str:
