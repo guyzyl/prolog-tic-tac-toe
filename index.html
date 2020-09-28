@@ -65,11 +65,11 @@
             <label for="difficultySlider">Difficulty Level (alpha-beta depth)</label>
             <input type="range" class="form-control-range" min="1" v-bind:max="maxDifficultyLevel" v-model="difficultyLevel" id="difficultySlider">
           </div>
-          <div class="form-group mx-sm-3 mb-2">
+          <div class="form-group">
             <label for="boardSizeInput" class="sr-only">Board Size</label>
             <input type="text" class="form-control" id="boardSizeInput" placeholder="Board size" v-model="boardSize" @input="resizeBoard" />
           </div>
-          <button type="button" class="btn btn-warning mb-2" @click="resizeBoard">Reset</button>
+          <button type="button" class="btn btn-warning" @click="resizeBoard">Reset</button>
         </form>
       </div>
 
@@ -196,6 +196,8 @@
             this.showInfoModal("You win!");
           } else if (isWinner === false) {
             this.showInfoModal("You lose!");
+          } else if (this.checkIsDraw()) {
+            this.showInfoModal("Game reached a draw");
           }
         });
       },
@@ -204,6 +206,17 @@
         axios.get("/about").then(response => {
           this.aboutContent = response.data;
         });
+      },
+
+      checkIsDraw() {
+        for (var i = 0; i < this.board.length; i++) {
+          for (var j = 0; j < this.board[i].length; j++) {
+            if (this.board[i][j] === "") {
+              return false;
+            }
+          }
+        }
+        return true;
       },
 
       setSymbol(symbol) {
@@ -237,5 +250,14 @@
     font-size: 65px;
     border: 1px solid black;
     cursor: pointer
+  }
+
+  .form-group {
+    padding: 0 10px;
+  }
+
+  #boardSizeInput {
+    width: 65px;
+    text-align: center;
   }
 </style>
