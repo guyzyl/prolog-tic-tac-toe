@@ -11,46 +11,61 @@
 %   - All over the documentation, "+" is an input variable and "-" an output
 %
 
-% TODO add depth variable
-% TODO check that current board isn't draw or win
-% miniMax(+Player, +Board, -BestMove)
+% miniMax(+Depth +Player, +Board, -BestMove)
 % Find the best move Player can make on Board.
+% :param Depth: The depth of the alpha-beta pruhning
+% :param Player: The symbol the computer needs to play
+% :param Board: Representation of the board (see top comment)
 % :return BestMove: The new board with the best possible move chosen.
-miniMax(Player, Board, BestMove) :-
-    miniMaxStep(Player, Player, max, Board, BestMove, _).
+%   Returns the same board if there's a win / draw on given board.
+miniMax(_, Player, Board, Board) :-
+    isWinning(Player, Board);
+    otherPlayer(Player, OtherPlayer),
+    isWinning(OtherPlayer, Board);
+    isDraw(Board).
+
+miniMax(Depth, Player, Board, BestMove) :-
+    miniMaxStep(Depth, Player, Player, max, Board, BestMove, _).
 
 
 
-% miniMaxStep(+OriginalPlayer, +Player, +MinMax, +Board, -BestMove, -BestScore)
+% miniMaxStep(+Depth, +OriginalPlayer, +Player, +MinMax, +Board, -BestMove, -BestScore)
 % Finds the best move Player can make on Board (by trying to maximize BestScore).
-% :param OriginalPlayer: This is needed later on for properly scoring the boards.
-miniMaxStep(OriginalPlayer, Player, MinMax, Board, BestMove, BestScore) :-
+% :param OriginalPlayer: Keep track of the original player - needed for scoring.
+%   This is needed for supporting computer being both X and O
+miniMaxStep(Depth, OriginalPlayer, Player, MinMax, Board, BestMove, BestScore) :-
+    Depth > 0,
+    NewDepth is Depth - 1,
     allMoves(Player, Board, AllMoves),
-    bestMove(OriginalPlayer, Player, MinMax, AllMoves, BestMove, BestScore).
+    bestMove(NewDepth, OriginalPlayer, Player, MinMax, AllMoves, BestMove, BestScore).
 
+miniMaxStep(_, OriginalPlayer, _, _, Board, _, Score) :-
+    scoreBoard(0, OriginalPlayer, Board, Score).
+% TODO DELETE
+% alphabeta(_, Position, _, _, 0, Value):-
+%     value(Position, Value). % Depth is 0, or no moves left
 
-
-% bestMove(+OriginalPlayer, +Player, +MinMax, +AllMoves, -BestMove, -BestScore)
+% bestMove(+Depth, +OriginalPlayer, +Player, +MinMax, +AllMoves, -BestMove, -BestScore)
 % Choose the next move.
 
 % Pick best scoring move out of moves
-bestMove(OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
-    scoreBoard(OriginalPlayer, Move, Score),
-    bestMove(OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
+bestMove(Depth, OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
+    scoreBoard(Depth, OriginalPlayer, Move, Score),
+    bestMove(Depth, OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
     compareMoves(MinMax, Move, Score, CurrentBestMove, CurrentBestScore, BestMove, BestScore).
 
-bestMove(OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
-    bestMove(OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
+bestMove(Depth, OriginalPlayer, Player, MinMax, [Move | OtherMoves], BestMove, BestScore) :-
+    bestMove(Depth, OriginalPlayer, Player, MinMax, OtherMoves, CurrentBestMove, CurrentBestScore),
     otherPlayer(Player, OtherPlayer),
     switchMinMax(MinMax, OtherMinMax),
-    miniMaxStep(OriginalPlayer, OtherPlayer, OtherMinMax, Move, _, LeafBestScore),
+    miniMaxStep(Depth, OriginalPlayer, OtherPlayer, OtherMinMax, Move, _, LeafBestScore),
     compareMoves(MinMax, Move, LeafBestScore, CurrentBestMove, CurrentBestScore, BestMove, BestScore).
 
 % If no boards left and MinMax is max.
-bestMove(_, _, max, [], [], -2).
+bestMove(_, _, _, max, [], [], -2).
 
 % If no boards left and MinMax is min.
-bestMove(_, _, min, [], [], 2).
+bestMove(_, _, _, min, [], [], 2).
 
 
 
@@ -73,7 +88,7 @@ compareMoves(min, _, ScoreA, MoveB, ScoreB, MoveB, ScoreB) :-
 
 
 
-% scoreBoard(+Player, +Board, -Score)
+% scoreBoard(+Depth, +Player, +Board, -Score)
 % Give score to board based on Player symbol and given board.
 % Given +1 for win, -1 for loose, 0 for tie.
 % :param Player: The symbol of the player we want to check
@@ -81,22 +96,26 @@ compareMoves(min, _, ScoreA, MoveB, ScoreB, MoveB, ScoreB) :-
 % :return Score: The score for the board (1, -1, 0).
 
 % If empty board
-scoreBoard(_, [], Score) :-
-    Score is 0, !.
+scoreBoard(_, _, [], Score) :-
+    Score is 0.
+
+% If depth is zero
+scoreBoard(0, _, _, Score) :-
+    Score is 0.
 
 % If Player is winning +1
-scoreBoard(P, Board, Score) :-
+scoreBoard(_, P, Board, Score) :-
     isWinning(P, Board),
     Score is 1, !.
 
 % If other player is winning -1
-scoreBoard(P, Board, Score) :-
+scoreBoard(_, P, Board, Score) :-
     otherPlayer(P, P2),
     isWinning(P2, Board),
     Score is -1, !.
 
 % If draw 0
-scoreBoard(_, Board, Score) :-
+scoreBoard(_, _, Board, Score) :-
     isDraw(Board),
     Score is 0, !.
 
