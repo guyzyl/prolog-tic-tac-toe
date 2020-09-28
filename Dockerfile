@@ -1,9 +1,12 @@
 # Based on the official Debian Swipl Docker image
 FROM swipl:latest
 
+# Add Debian repo (necessary for Python newer then 3.5)
+RUN echo "deb http://ftp.de.debian.org/debian testing main" >> /etc/apt/sources.list
+
 # Install Python dependencies
-RUN apt update
-RUN apt install -y python3 python3-pip
+RUN apt-get update
+RUN apt-get -t testing install -y python3 python3-pip
 
 # Copy and install requirements.txt indepentntly to save build time
 WORKDIR /opt
