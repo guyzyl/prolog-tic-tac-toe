@@ -53,11 +53,16 @@
 
       <div id="gameOptions" class="bodyBlock">
         <form class="form-inline">
-          <select class="custom-select mx-sm-3 mb-2" v-model="selectedDifficultyLevel">
-            <option v-for="option in difficultyLevels" v-bind:value="option">
-              {{ option }}
-            </option>
-          </select>
+          <div class="form-group">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-primary" :disabled="playerSymbol === 'X'" @click="setSymbol('X')">X</button>
+              <button type="button" class="btn btn-primary":disabled="playerSymbol === 'O'" @click="setSymbol('O')">O</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="difficultySlider">Difficulty Level (alpha-beta depth)</label>
+            <input type="range" class="form-control-range" min="1" v-bind:max="maxDifficultyLevel" v-model="difficultyLevel" id="difficultySlider">
+          </div>
           <div class="form-group mx-sm-3 mb-2">
             <label for="boardSizeInput" class="sr-only">Board Size</label>
             <input type="text" class="form-control" id="boardSizeInput" placeholder="Board size" v-model="boardSize" @input="resizeBoard" />
@@ -87,8 +92,8 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" v-html="aboutContent">
-            <!-- <span v-html="aboutContent"></span> -->
+          <div class="modal-body">
+            <span v-html="aboutContent"></span>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -121,13 +126,14 @@
         board: null,
         boardSize: 3,
         playerSymbol: "X",
-        selectedDifficultyLevel: "Hard",
-        difficultyLevels: ["Easy", "Medium", "Hard"],
+        difficultyLevel: 0,
+        maxDifficultyLevel: 0,
         aboutContent: null,
       }
     },
 
     mounted() {
+      this.difficultyLevel = this.boardSize * this.boardSize;
       this.resizeBoard();
       this.getAbout();
     },
@@ -135,6 +141,17 @@
     methods: {
       resizeBoard() {
         this.board = createBoard(this.boardSize);
+        if (this.boardSize > 0) {
+          this.maxDifficultyLevel = this.boardSize * this.boardSize;
+        }
+      },
+
+      postJsonData() {
+        return {
+          board: this.board,
+          difficultyLevel: this.difficultyLevel,
+          symbol: this.otherSymbol(this.symbol)
+        }
       },
 
       makeMove(rowIndex, cellIndex) {
@@ -142,7 +159,7 @@
           alert("Invalid move!");
         } else {
           this.board[rowIndex][cellIndex] = this.playerSymbol;
-          axios.post("/api/make_move", {board: this.board, difficultyLevel: this.selectedDifficultyLevel}).then(response => {
+          axios.post("/api/make_move", this.postJsonData()).then(response => {
             this.board = response.data.board;
           });
         }
@@ -152,6 +169,15 @@
         axios.get("/about").then(response => {
           this.aboutContent = response.data;
         });
+      },
+
+      setSymbol(symbol) {
+        this.playerSymbol = symbol;
+        this.resizeBoard();
+      },
+
+      otherSymbol(symbol) {
+        return this.symbol === "X" ? "X" : "O";
       }
     }
   }
