@@ -1,13 +1,14 @@
 from typing import List
 from itertools import islice
 
-from pyswip.prolog import Prolog
+
+from pyswip_mt import PrologMT
 from flask import Flask, jsonify, request
 from markdown2 import markdown
 
 app = Flask(__name__)
 
-prolog = Prolog()
+prolog = PrologMT()
 prolog.consult("tic-tac-toe.pl")
 
 
