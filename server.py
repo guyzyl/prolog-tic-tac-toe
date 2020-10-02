@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from markdown2 import markdown
 
 from prolog_bridge import make_move, check_is_winner
 
@@ -13,17 +12,6 @@ def index():
     """
     with open("index.html", "r") as f_obj:
         return f_obj.read()
-
-
-@app.route("/about")
-def about():
-    """
-    Function returns README.md as HTML.
-    This is used for the "About" button in the index page.
-    """
-    with open("README.md", "r") as f_obj:
-        content =  f_obj.read()
-    return markdown(content)
 
 
 @app.route("/api/is_winner", methods=["POST"])
