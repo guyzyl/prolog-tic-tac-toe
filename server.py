@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from markdown2 import markdown
 
-from .prolog_bridge import make_move, check_is_winner
+from prolog_bridge import make_move, check_is_winner
 
 app = Flask(__name__)
 
