@@ -1,15 +1,49 @@
 """
 Python function to bridge between server and the Prolog logic.
 """
+from os import path
 from typing import List, Optional
 from itertools import islice
 
 from pyswip_mt import PrologMT
+from jinja2 import Template
 
+STACK_LIMIT = 4000000000
 OTHER_PLAYER_SYMBOL = lambda x: "x" if x == "O" else "o"
 
 prolog = PrologMT()
-prolog.consult("tic-tac-toe.pl")
+currently_consulted = ""
+
+
+def consult_board_size(board_size: int) -> None:
+    """
+    Generate the right sized prolog file and add it as
+    consulted file to global prolog obj.
+    """
+    # Enlarge stack
+    next(prolog.query(f"set_prolog_flag(stack_limit, {STACK_LIMIT})."))
+
+    # Check if file matches current one being used
+    global currently_consulted
+    sized_file_name = f"{board_size}-tic-tac-toe.pl"
+    if sized_file_name == currently_consulted:
+        return
+
+    # Check if file wasn't already generated
+    if not path.exists(sized_file_name):
+        # Load pl file as template
+        with open("tic-tac-toe.pl", "r") as f_obj:
+            template = Template(f_obj.read())
+
+        # Generate and write new statements
+        board_str = generate_prolog_winning_statements(board_size)
+        with open(sized_file_name, "w") as f_obj:
+            f_obj.write(template.render(board_statements=board_str))
+
+    # Unload previous file and consult new one
+    next(prolog.query(f'unload_file("{currently_consulted}").'))
+    prolog.consult(sized_file_name)
+    currently_consulted = sized_file_name
 
 
 def make_move(board: List[List], difficulty_level: int, player_symbol: str) -> List[List]:
@@ -25,6 +59,7 @@ def make_move(board: List[List], difficulty_level: int, player_symbol: str) -> L
     # Make data simpler for Prolog
     prolog_board = board_to_prolog(board)
 
+    consult_board_size(len(board))
     prolog_query = f"miniMax({difficulty_level}, {OTHER_PLAYER_SYMBOL(player_symbol)}, {prolog_board}, BestMove)"
     prolog_result = list(prolog.query(prolog_query, maxresult=1))[0].get("BestMove")
 
@@ -42,6 +77,7 @@ def check_is_winner(board: List[List], player_symbol: str) -> Optional[bool]:
     prolog_board = board_to_prolog(board)
 
     # Check if player wins
+    consult_board_size(len(board))
     prolog_query = f"isWinning({player_symbol.lower()}, {prolog_board})."
     prolog_result = list(prolog.query(prolog_query))
     if len(prolog_result) > 0:
@@ -99,18 +135,20 @@ def generate_prolog_winning_statements(board_size: int):
     for i in range(board_size):
         statements_lists.append([f"X{(i * board_size) + j}" for j in range(1, board_size + 1)])
 
-    # If board_size is odd create diagonal matches
-    if (board_size % 2 == 1):
-        statements_lists.append([f"X{(i * board_size) + i + 1}" for i in range(board_size)])
-        statements_lists.append([f"X{(i * board_size) + (board_size - i)}" for i in range(board_size)])
+    # Create diagonal matches
+    statements_lists.append([f"X{(i * board_size) + i + 1}" for i in range(board_size)])
+    statements_lists.append([f"X{(i * board_size) + (board_size - i)}" for i in range(board_size)])
 
     statements_string = []
+
     # Add required strings
     statements_string.append(f"equal({', '.join(['X' for i in range(board_size + 1)])}).")
     statements_string.append(f"isWinning(P, [{', '.join(board_array)}]) :-")
+
     # Convert all statements (except last) to strings
     for statement in statements_lists[:-1]:
         statements_string.append(f"\tequal(P, {', '.join(statement)});")
+
     # Add last statement with "."
     statements_string.append(f"\tequal(P, {', '.join(statements_lists[-1])}).")
 
