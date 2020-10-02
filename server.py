@@ -125,5 +125,42 @@ def prolog_to_board(board: List, board_size: int) -> List[List]:
     return result
 
 
+def generate_prolog_winning_statements(board_size: int):
+    """
+    Generate the isWinning prolog statement dependent on board size.
+    This is needed since it's difficult to support dynamic array
+        size + matching winning statements in Prolog.
+    See tic-tac-toe.pl for Prolog function documentaion.
+    """
+    board_array = [f"X{i}" for i in range(1, board_size * board_size + 1)]
+    statements_lists = []
+
+    # Create vertical winning matches
+    for i in range(1, board_size + 1):
+        statements_lists.append([f"X{i + (board_size * j)}" for j in range(board_size)])
+
+    # Create horizontal winning matches
+    for i in range(board_size):
+        statements_lists.append([f"X{(i * board_size) + j}" for j in range(1, board_size + 1)])
+
+    # If board_size is odd create diagonal matches
+    if (board_size % 2 == 1):
+        statements_lists.append([f"X{(i * board_size) + i + 1}" for i in range(board_size)])
+        statements_lists.append([f"X{(i * board_size) + (board_size - i)}" for i in range(board_size)])
+
+    statements_string = []
+    # Add required strings
+    statements_string.append(f"equal({', '.join(['X' for i in range(board_size + 1)])}).")
+    statements_string.append(f"isWinning(P, [{', '.join(board_array)}]) :-")
+    # Convert all statements (except last) to strings
+    for statement in statements_lists[:-1]:
+        statements_string.append(f"\tequal(P, {', '.join(statement)});")
+    # Add last statement with "."
+    statements_string.append(f"\tequal(P, {', '.join(statements_lists[-1])}).")
+
+    full_prolog_code = "\n" + "\n".join(statements_string) + "\n"
+    return full_prolog_code
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

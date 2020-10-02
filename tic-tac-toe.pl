@@ -159,11 +159,6 @@ isDraw(Board) :-
     \+ member(0, Board).
 
 
-% --------------------------------------------------------- %
-% Code from here is Python auto generated code for better   %
-% "any size" tic-tac-toe game support.                      %
-% --------------------------------------------------------- %
-
 % isWinning(+Player, +Board)
 % Check if player is isWinning in board
 % :param Player: The symbol of player we want to check.
@@ -183,3 +178,12 @@ isWinning(P, [X1, X2, X3, X4, X5, X6, X7, X8, X9]) :-
 % Helper method for "isWinning", check if all symbols match.
 % True if X1 = X2 = X3 = X4.
 equal(X, X, X, X).
+
+% --------------------------------------------------------- %
+% Code here is Python auto generated code for better        %
+% "any size" tic-tac-toe game support.                      %
+% This uses Jinja2 templating to insert the additional      %
+% isWinning + equal matching the required board size        %
+% --------------------------------------------------------- %
+
+% {{ board_statements }}
