@@ -1,6 +1,21 @@
-% TODO Add name here
-%
+% Programmer  - Guy Zylberberg
+% File Name   - tic-tac-toe.pl
+% Description - Code that decides what's the best move for a given player on a
+%               given XO board.
+%               The code supportx a 3x3 board size out of the box, but the Python
+%               library Jinja2 can be used in order to create any sized board thanks
+%               to the imprinted templating inside the code.
+%               For templating example see prolog_bridge.py::consult_board_size.
 % Input       - All miniMax input variables documented on function level.
+% Output      - A board representation with the best move made on it.
+% Synopsys    - In order to let the computer make a decision, one needs to
+%               call the miniMax function with the proper parameters.
+%               An example call on a 3x3 board:
+%                   miniMax(9, o, [x, x, 0, 0, o, 0, o, 0, 0], BestMove).
+%               This will tell the program to make a move with the player "o"
+%               on the given board, causing it to win + block and return:
+%                   BestMove = [x, x, o, 0, o, 0, o, 0, 0]
+
 % Board is a one dimensional array of the following values:
 %   x - The symobol for player X
 %   o - The symbol for player O
@@ -12,27 +27,22 @@
 %   - All over the documentation, "+" is an input variable and "-" an output
 %
 
+
 % miniMax(+Depth +Player, +Board, -BestMove)
 % Find the best move Player can make on Board.
-% :param Depth: The depth of the alpha-beta pruhning
-% :param Player: The symbol the computer needs to play
+% :param Depth: The depth of the alpha-beta pruhning, a number
+% :param Player: The symbol the computer needs to play, x or o
 % :param Board: Representation of the board (see top comment)
 % :return BestMove: The new board with the best possible move chosen.
 %   Returns the same board if there's a win / draw on given board.
-
-% Validate input
-miniMax(Depth, Player, Board, _) :-
-    \+ validateInput(Depth, Player, Board).
-
-% Actual miniMax logic
 miniMax(_, Player, Board, Board) :-
     isWinning(Player, Board);
     otherPlayer(Player, OtherPlayer),
     isWinning(OtherPlayer, Board);
     isDraw(Board).
 
-% Initial call
 miniMax(Depth, Player, Board, BestMove) :-
+    \+ validateInput(Depth, Player, Board),
     miniMaxStep(Depth, Player, Player, max, Board, BestMove, _).
 
 
@@ -52,6 +62,7 @@ validateInput(Depth, Player, Board) :-
 
     Depth < 1,
     throw("Invalid input Depth!").
+
 
 
 % miniMaxStep(+Depth, +OriginalPlayer, +Player, +MinMax, +Board, -BestMove, -BestScore)
