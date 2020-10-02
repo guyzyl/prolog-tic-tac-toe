@@ -43,7 +43,6 @@
         <p>
           This is a classic tic-tac-toe game where the logic is implemented in Prolog (swiprolog specifically)<br>
           Choose your game options and play!<br>
-          For more info - press the "About" button in the header.<br>
         </p>
       </div>
 
@@ -106,17 +105,6 @@
 
 <!-- Frontend Logic -->
 <script>
-  function createBoard(size) {
-    var newBoard = []
-    for (var i = 0; i < size; i++) {
-      newBoard[i] = [];
-      for (var j = 0; j < size; j++) {
-        newBoard[i][j] = "";
-      }
-    }
-    return newBoard;
-  }
-
   const App = {
     data() {
       return {
@@ -135,8 +123,19 @@
     },
 
     methods: {
+      createBoard(size) {
+        var newBoard = []
+        for (var i = 0; i < size; i++) {
+          newBoard[i] = [];
+          for (var j = 0; j < size; j++) {
+            newBoard[i][j] = "";
+          }
+        }
+        return newBoard;
+      },
+
       resizeBoard() {
-        this.board = createBoard(this.boardSize);
+        this.board = this.createBoard(this.boardSize);
         this.isWinner = null;
       },
 
