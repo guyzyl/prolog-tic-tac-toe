@@ -73,6 +73,7 @@ bestMove(_, _, _, min, [], [], 2).
 % Compare MoveA and MoveB (with respective scores) and pick the better one.
 % Also takes current MinMax value into fact.
 % If MinMax is max
+
 compareMoves(max, MoveA, ScoreA, _, ScoreB, MoveA, ScoreA) :-
     ScoreA >= ScoreB, !.
 
@@ -159,6 +160,9 @@ isDraw(Board) :-
     \+ member(0, Board).
 
 
+% This will be commented out when generating from template
+% {#
+
 % isWinning(+Player, +Board)
 % Check if player is isWinning in board
 % :param Player: The symbol of player we want to check.
@@ -178,6 +182,8 @@ isWinning(P, [X1, X2, X3, X4, X5, X6, X7, X8, X9]) :-
 % Helper method for "isWinning", check if all symbols match.
 % True if X1 = X2 = X3 = X4.
 equal(X, X, X, X).
+
+% #}
 
 % --------------------------------------------------------- %
 % Code here is Python auto generated code for better        %
