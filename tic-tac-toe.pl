@@ -1,5 +1,6 @@
 % TODO Add name here
 %
+% Input       - All miniMax input variables documented on function level.
 % Board is a one dimensional array of the following values:
 %   x - The symobol for player X
 %   o - The symbol for player O
