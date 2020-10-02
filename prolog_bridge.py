@@ -143,6 +143,7 @@ def generate_prolog_winning_statements(board_size: int):
 
     # Add required strings
     statements_string.append(f"equal({', '.join(['X' for i in range(board_size + 1)])}).")
+    statements_string.append(f"isProperSize({', '.joins(['_' for i in range(board_size * board_size)])}).")
     statements_string.append(f"isWinning(P, [{', '.join(board_array)}]) :-")
 
     # Convert all statements (except last) to strings
