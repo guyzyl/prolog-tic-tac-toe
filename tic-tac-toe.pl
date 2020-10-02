@@ -18,15 +18,39 @@
 % :param Board: Representation of the board (see top comment)
 % :return BestMove: The new board with the best possible move chosen.
 %   Returns the same board if there's a win / draw on given board.
+
+% Validate input
+miniMax(Depth, Player, Board, _) :-
+    \+ validateInput(Depth, Player, Board).
+
+% Actual miniMax logic
 miniMax(_, Player, Board, Board) :-
     isWinning(Player, Board);
     otherPlayer(Player, OtherPlayer),
     isWinning(OtherPlayer, Board);
     isDraw(Board).
 
+% Initial call
 miniMax(Depth, Player, Board, BestMove) :-
     miniMaxStep(Depth, Player, Player, max, Board, BestMove, _).
 
+
+
+% validateInput(+Depth, +Player, +Board)
+% Validates all miniMax input parameters,
+% Throws exception if something is invalid.
+validateInput(Depth, Player, Board) :-
+    \+ isBoardValid(Board),
+    throw("Board contains invalid signs!");
+
+    \+ isProperSize(Board),
+    throw("Board is inpropely sized!");
+
+    \+ otherPlayer(Player, _),
+    throw("Invalid input Player!");
+
+    Depth < 1,
+    throw("Invalid input Depth!").
 
 
 % miniMaxStep(+Depth, +OriginalPlayer, +Player, +MinMax, +Board, -BestMove, -BestScore)
@@ -41,9 +65,7 @@ miniMaxStep(Depth, OriginalPlayer, Player, MinMax, Board, BestMove, BestScore) :
 
 miniMaxStep(_, OriginalPlayer, _, _, Board, _, Score) :-
     scoreBoard(0, OriginalPlayer, Board, Score).
-% TODO DELETE
-% alphabeta(_, Position, _, _, 0, Value):-
-%     value(Position, Value). % Depth is 0, or no moves left
+
 
 % bestMove(+Depth, +OriginalPlayer, +Player, +MinMax, +AllMoves, -BestMove, -BestScore)
 % Choose the next move.
@@ -154,10 +176,27 @@ switchMinMax(min, max).
 switchMinMax(max, min).
 
 
+% isProperSymbol(+Symbol)
+% Returns true if Symbol is a valid symbol for the board (x, o, 0)
+isProperSymbol(x).
+isProperSymbol(o).
+isProperSymbol(0).
+
+
 % isDraw(+Board)
 % Returns True if all spots on board are taken (!= 0)
 isDraw(Board) :-
     \+ member(0, Board).
+
+
+% isBoardValid(+Board)
+% Return true if board contains only proper symbols.
+isBoardValid([CurrentSymbol|OtherSymbols]) :-
+    isProperSymbol(CurrentSymbol),
+    isBoardValid(OtherSymbols).
+
+% Base case
+isBoardValid([]).
 
 
 % This will be commented out when generating from template
@@ -182,6 +221,12 @@ isWinning(P, [X1, X2, X3, X4, X5, X6, X7, X8, X9]) :-
 % Helper method for "isWinning", check if all symbols match.
 % True if X1 = X2 = X3 = X4.
 equal(X, X, X, X).
+
+
+% isProperSize(+Board)
+% Check that Board is at a correct XO board size.
+isProperSize([_, _, _, _, _, _, _, _, _]).
+
 
 % #}
 
