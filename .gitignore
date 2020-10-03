@@ -1,0 +1,5 @@
+# Python ignores
+__pycache__/
+
+# Dynamic tic-tac-toe.pl ignore
+*-tic-tac-toe.pl
