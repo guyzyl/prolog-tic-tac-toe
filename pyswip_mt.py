@@ -1,6 +1,6 @@
 """
 A solution for running Prolog in a multithreaded environment (Flask in our case).
-Copied from - https://github.com/yuce/pyswip/issues/3#issuecomment-355458825
+Based on https://github.com/yuce/pyswip/issues/3#issuecomment-355458825
 """
 import ctypes
 import pyswip

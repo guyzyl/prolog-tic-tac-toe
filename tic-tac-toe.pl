@@ -1,21 +1,3 @@
-% Programmer  - Guy Zylberberg
-% File Name   - tic-tac-toe.pl
-% Description - Code that decides what's the best move for a given player on a
-%               given XO board.
-%               The code supportx a 3x3 board size out of the box, but the Python
-%               library Jinja2 can be used in order to create any sized board thanks
-%               to the imprinted templating inside the code.
-%               For templating example see prolog_bridge.py::consult_board_size.
-% Input       - All miniMax input variables documented on function level.
-% Output      - A board representation with the best move made on it.
-% Synopsys    - In order to let the computer make a decision, one needs to
-%               call the miniMax function with the proper parameters.
-%               An example call on a 3x3 board:
-%                   miniMax(9, o, [x, x, 0, 0, o, 0, o, 0, 0], BestMove).
-%               This will tell the program to make a move with the player "o"
-%               on the given board, causing it to win + block and return:
-%                   BestMove = [x, x, o, 0, o, 0, o, 0, 0]
-
 % Board is a one dimensional array of the following values:
 %   x - The symobol for player X
 %   o - The symbol for player O
