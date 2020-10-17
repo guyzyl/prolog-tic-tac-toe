@@ -6,7 +6,7 @@ This was developed for educational purposes.\
 ![screenshot](https://user-images.githubusercontent.com/3015856/95652473-c5681800-0af9-11eb-9c2f-b211b965ca8b.png)
 
 ## How to run
-To run the game there are 2 options:
+There are 2 options for running the game server:
 
 ### Docker
 Definitely the prefered way. Make sure you have Docker installed and running, `cd` directory and run:
