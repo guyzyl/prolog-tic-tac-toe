@@ -6,7 +6,7 @@
 %   [x, 0, 0, o]
 %
 % Notes:
-%   - All over the documentation, "+" is an input variable and "-" an output
+%   - All over the documentation, "+" is an input variable and "-" is an output
 %
 
 
